@@ -38,6 +38,22 @@
       flex-direction: column;
       overflow: hidden;
       position: relative;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+
+    input, textarea {
+      -webkit-user-select: text;
+      -moz-user-select: text;
+      -ms-user-select: text;
+      user-select: text;
+    }
+
+    img, a {
+      -webkit-user-drag: none;
+      user-drag: none;
     }
 
     .login-content {
@@ -452,6 +468,10 @@
     }
 
     window.addEventListener('DOMContentLoaded', initLogin);
+
+    // Prevent default drag and drop behaviors (files, items, etc.)
+    window.addEventListener('dragover', (e) => e.preventDefault(), false);
+    window.addEventListener('drop', (e) => e.preventDefault(), false);
   </script>
   </div>
 </body>

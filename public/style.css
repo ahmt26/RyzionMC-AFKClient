@@ -1712,4 +1712,33 @@ body.is-electron .app-container {
   color: var(--text-white);
 }
 
+/* --- Disable Text Selection and Element Dragging --- */
+body {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Allow selection in live console logs, connection details table, inputs, and textareas */
+.terminal-logs,
+.terminal-logs *,
+.info-table,
+.info-table *,
+input,
+textarea,
+[contenteditable="true"] {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+}
+
+/* Prevent image and link dragging */
+img, a {
+  -webkit-user-drag: none;
+  user-drag: none;
+}
+
+
 

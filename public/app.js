@@ -1709,5 +1709,14 @@ window.addEventListener('keydown', (e) => {
   }
 }, { capture: true });
 
+// Prevent default drag and drop behaviors (files, items, etc.)
+window.addEventListener('dragover', (e) => {
+  e.preventDefault();
+}, false);
+window.addEventListener('drop', (e) => {
+  e.preventDefault();
+}, false);
+
+
 
 

@@ -40,7 +40,7 @@ function createWindow() {
     width: 1280,
     height: 800,
     title: 'RyzionMC AFK Client',
-    icon: path.join(__dirname, 'public', 'logo.jpg'),
+    icon: path.join(__dirname, 'public', 'logo.ico'),
     frame: false, // Make window borderless / frameless
     webPreferences: {
       nodeIntegration: false,

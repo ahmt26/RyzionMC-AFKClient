@@ -30,6 +30,7 @@
       "output": "dist"
     },
     "win": {
+      "icon": "public/logo.ico",
       "target": [
         {
           "target": "nsis",
