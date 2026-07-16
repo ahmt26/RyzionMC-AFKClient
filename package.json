@@ -2,6 +2,7 @@
   "name": "ryzionmc-afk-client",
   "version": "1.0.0",
   "description": "Minecraft AFK Client with Web GUI and Gemini Integration",
+  "author": "ahmt26 <ahmt26@github.com>",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
@@ -30,7 +31,7 @@
       "output": "dist"
     },
     "win": {
-      "icon": "public/logo.ico",
+      "icon": "build/icon.ico",
       "target": [
         {
           "target": "nsis",
@@ -45,7 +46,10 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "RyzionMC AFK Client"
+      "shortcutName": "RyzionMC AFK Client",
+      "installerIcon": "build/installerIcon.ico",
+      "uninstallerIcon": "build/installerIcon.ico",
+      "installerHeaderIcon": "build/installerIcon.ico"
     },
     "mac": {
       "target": [
@@ -56,15 +60,18 @@
     },
     "linux": {
       "target": [
-        "AppImage",
-        "deb",
-        "flatpak"
+        "deb"
       ],
       "category": "Utility"
     },
     "files": [
       "**/*",
+      "!node_modules/electron",
+      "!node_modules/app-builder-bin",
+      "!node_modules/typescript",
+      "!node_modules/7zip-bin",
       "!dist",
+      "!build",
       "!scratch",
       "!.agents",
       "!.gemini",
