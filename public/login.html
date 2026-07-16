@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RyzionMC AFK Client - Login</title>
+  <link rel="icon" type="image/jpeg" href="logo.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #0b0c10;
+      --bg-secondary: #1f2833;
+      --accent-color: #66fcf1;
+      --accent-secondary: #45a29e;
+      --text-primary: #c5c6c7;
+      --text-white: #ffffff;
+      --text-muted: #8b949e;
+      --danger: #d73a49;
+      --border-color: rgba(255, 255, 255, 0.08);
+      --glass-color: rgba(31, 40, 51, 0.45);
+      --font-sans: 'Outfit', sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .login-content {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      position: relative;
+    }
+
+    /* Glow background */
+    .glass-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: -1;
+      background: 
+        radial-gradient(circle at 20% 30%, rgba(102, 252, 241, 0.07) 0%, transparent 40%),
+        radial-gradient(circle at 80% 70%, rgba(69, 162, 158, 0.07) 0%, transparent 45%);
+    }
+
+    .login-container {
+      width: 100%;
+      max-width: 420px;
+      padding: 2.5rem;
+      background: var(--glass-color);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      backdrop-filter: blur(16px);
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+      text-align: center;
+      animation: fadeIn 0.6s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .logo-img {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 16px;
+      border: 2px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 0 20px rgba(102, 252, 241, 0.25);
+      margin-bottom: 1.5rem;
+    }
+
+    .title {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--text-white);
+      margin-bottom: 0.5rem;
+    }
+
+    .subtitle {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      margin-bottom: 2rem;
+      line-height: 1.4;
+    }
+
+    .form-group {
+      text-align: left;
+      margin-bottom: 1.25rem;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-white);
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      background: rgba(11, 12, 16, 0.6);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      color: var(--text-white);
+      font-family: var(--font-sans);
+      font-size: 0.95rem;
+      transition: all 0.3s ease;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: var(--accent-color);
+      box-shadow: 0 0 10px rgba(102, 252, 241, 0.25);
+      background: rgba(11, 12, 16, 0.85);
+    }
+
+    .btn-login {
+      width: 100%;
+      padding: 0.85rem;
+      background: linear-gradient(135deg, #66fcf1 0%, #45a29e 100%);
+      border: none;
+      border-radius: 8px;
+      color: #0b0c10;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 1rem;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(102, 252, 241, 0.2);
+    }
+
+    .btn-login:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102, 252, 241, 0.35);
+      filter: brightness(1.1);
+    }
+
+    .btn-login:active {
+      transform: translateY(0);
+    }
+
+    .error-banner {
+      background: rgba(215, 58, 73, 0.15);
+      border: 1px solid rgba(215, 58, 73, 0.3);
+      color: #ff6b76;
+      padding: 0.75rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      margin-bottom: 1.5rem;
+      text-align: center;
+      animation: shake 0.4s ease-in-out;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-6px); }
+      75% { transform: translateX(6px); }
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    /* Custom Glassmorphic Title Bar */
+    .custom-title-bar {
+      display: none; /* Hidden by default in web browsers */
+      height: 32px;
+      background: rgba(11, 12, 16, 0.5);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 12px;
+      user-select: none;
+      z-index: 9999;
+      position: relative;
+      width: 100%;
+      -webkit-app-region: drag; /* Enables window drag */
+    }
+
+    body.is-electron .custom-title-bar {
+      display: flex;
+    }
+
+    .title-bar-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: var(--text-primary);
+      letter-spacing: 0.5px;
+    }
+
+    .title-bar-logo {
+      width: 16px;
+      height: 16px;
+      object-fit: cover;
+      border-radius: 3px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .title-bar-right {
+      display: flex;
+      align-items: center;
+      height: 100%;
+    }
+
+    .title-bar-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      width: 44px;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      -webkit-app-region: no-drag; /* Exclude from dragging */
+    }
+
+    .title-bar-btn:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-white);
+    }
+
+    .title-bar-btn.btn-close:hover {
+      background: var(--danger);
+      color: var(--text-white);
+    }
+  </style>
+</head>
+<body>
+  <div class="custom-title-bar">
+    <div class="title-bar-left">
+      <img src="logo.jpg" alt="Logo" class="title-bar-logo">
+      <span class="title-bar-title" data-i18n="title_bar_text">RyzionMC AFK Client - Login</span>
+    </div>
+    <div class="title-bar-right">
+      <button class="title-bar-btn" id="title-bar-btn-min">
+        <svg viewBox="0 0 10 1" width="10" height="1"><rect width="10" height="1" fill="currentColor"/></svg>
+      </button>
+      <button class="title-bar-btn" id="title-bar-btn-max">
+        <svg viewBox="0 0 10 10" width="10" height="10"><path d="M0,0 H10 V10 H0 Z M1,1 V9 H9 V1 H1 Z" fill="currentColor"/></svg>
+      </button>
+      <button class="title-bar-btn btn-close" id="title-bar-btn-close">
+        <svg viewBox="0 0 10 10" width="10" height="10"><path d="M0,0 L10,10 M0,10 L10,0" stroke="currentColor" stroke-width="1.2"/></svg>
+      </button>
+    </div>
+  </div>
+  <div class="login-content">
+    <div class="glass-bg"></div>
+    <div class="login-container">
+    <img src="logo.jpg" alt="RyzionMC Logo" class="logo-img">
+    <h1 class="title" data-i18n="panel_login_title">Panel Login</h1>
+    <p class="subtitle" data-i18n="panel_login_desc">Please enter your username and password to access the panel.</p>
+    
+    <div id="error-message" class="error-banner hidden"></div>
+
+    <form id="login-form">
+      <div class="form-group">
+        <label for="username" data-i18n="panel_username_label">Panel Username</label>
+        <input type="text" id="username" required autocomplete="username" placeholder="Username" data-i18n-placeholder="panel_username_label">
+      </div>
+      
+      <div class="form-group">
+        <label for="password" data-i18n="panel_password_label">Panel Password</label>
+        <input type="password" id="password" required autocomplete="current-password" placeholder="Password" data-i18n-placeholder="panel_password_label">
+        <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem;">
+          <input type="checkbox" id="toggle-password" style="width: auto; margin: 0; cursor: pointer;">
+          <label for="toggle-password" data-i18n="show_password" style="font-size: 0.8rem; font-weight: normal; cursor: pointer; user-select: none; margin: 0; color: var(--text-muted);">Show Password</label>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-login" data-i18n="panel_login_btn">Log In</button>
+    </form>
+  </div>
+
+  <script src="translations.js"></script>
+  <script>
+    function formatCooldown(ms, dict) {
+      const sec = Math.ceil(ms / 1000);
+      const tSec = dict.time_sec || 'seconds';
+      const tMin = dict.time_min || 'minutes';
+      const tHour = dict.time_hour || 'hours';
+      const tDay = dict.time_day || 'days';
+      const tAnd = dict.time_and || 'and';
+
+      if (sec < 60) {
+        return `${sec} ${tSec}`;
+      }
+      const min = Math.ceil(sec / 60);
+      if (min < 60) {
+        const remainingSec = sec % 60;
+        if (remainingSec > 0) {
+          return `${Math.floor(sec / 60)} ${tMin} ${tAnd} ${remainingSec} ${tSec}`;
+        }
+        return `${min} ${tMin}`;
+      }
+      const hr = Math.floor(min / 60);
+      const remainingMin = min % 60;
+      if (hr < 24) {
+        if (remainingMin > 0) {
+          return `${hr} ${tHour} ${tAnd} ${remainingMin} ${tMin}`;
+        }
+        return `${hr} ${tHour}`;
+      }
+      const day = Math.floor(hr / 24);
+      const remainingHr = hr % 24;
+      if (remainingHr > 0) {
+        return `${day} ${tDay} ${tAnd} ${remainingHr} ${tHour}`;
+      }
+      return `${day} ${tDay}`;
+    }
+
+    async function initLogin() {
+      let lang = 'en';
+      try {
+        const res = await fetch('/api/language');
+        const data = await res.json();
+        lang = data.language || 'en';
+      } catch (err) {
+        console.error('Failed to fetch language:', err);
+      }
+      
+      document.documentElement.lang = lang;
+      const dict = translations[lang] || translations['en'];
+      
+      // Update document title
+      document.title = (dict.title || "RyzionMC AFK Client") + " - Login";
+      
+      // Translate elements with data-i18n
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        const value = dict[key];
+        if (value) {
+          el.textContent = value;
+        }
+      });
+
+      // Translate placeholders
+      document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const key = el.getAttribute('data-i18n-placeholder');
+        const value = dict[key];
+        if (value) {
+          el.placeholder = value;
+        }
+      });
+
+      const togglePassword = document.getElementById('toggle-password');
+      const passwordField = document.getElementById('password');
+      if (togglePassword && passwordField) {
+        togglePassword.addEventListener('change', function() {
+          passwordField.type = this.checked ? 'text' : 'password';
+        });
+      }
+
+      const form = document.getElementById('login-form');
+      const errorEl = document.getElementById('error-message');
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        errorEl.classList.add('hidden');
+
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+
+        try {
+          const res = await fetch('/api/login', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ username, password })
+          });
+
+          const data = await res.json();
+          if (res.ok && data.success) {
+            window.location.href = '/';
+          } else {
+            if (data.cooldownRemaining) {
+              errorEl.textContent = dict.panel_cooldown_error || 'Too many failed attempts. Please try again later.';
+            } else {
+              errorEl.textContent = dict.panel_login_error || 'Invalid username or password.';
+            }
+            errorEl.classList.remove('hidden');
+          }
+        } catch (err) {
+          errorEl.textContent = 'Connection error. Please try again.';
+          errorEl.classList.remove('hidden');
+        }
+      });
+
+      // Custom Window Control Bar Logic
+      if (window.windowControl) {
+        document.body.classList.add('is-electron');
+        
+        const minBtn = document.getElementById('title-bar-btn-min');
+        const maxBtn = document.getElementById('title-bar-btn-max');
+        const closeBtn = document.getElementById('title-bar-btn-close');
+        
+        if (minBtn) {
+          minBtn.addEventListener('click', () => {
+            window.windowControl.minimize();
+          });
+        }
+        
+        if (maxBtn) {
+          maxBtn.addEventListener('click', () => {
+            window.windowControl.maximize();
+          });
+        }
+        
+        if (closeBtn) {
+          closeBtn.addEventListener('click', () => {
+            window.windowControl.close();
+          });
+        }
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', initLogin);
+  </script>
+  </div>
+</body>
+</html>
+

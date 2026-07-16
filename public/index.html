@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RyzionMC AFK Client Dashboard</title>
+  <link rel="icon" type="image/jpeg" href="logo.jpg">
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="custom-title-bar">
+    <div class="title-bar-left">
+      <img src="logo.jpg" alt="Logo" class="title-bar-logo">
+      <span class="title-bar-title" data-i18n="title_bar_text">RyzionMC AFK Client Dashboard</span>
+    </div>
+    <div class="title-bar-right">
+      <button class="title-bar-btn" id="title-bar-btn-min">
+        <svg viewBox="0 0 10 1" width="10" height="1"><rect width="10" height="1" fill="currentColor"/></svg>
+      </button>
+      <button class="title-bar-btn" id="title-bar-btn-max">
+        <svg viewBox="0 0 10 10" width="10" height="10"><path d="M0,0 H10 V10 H0 Z M1,1 V9 H9 V1 H1 Z" fill="currentColor"/></svg>
+      </button>
+      <button class="title-bar-btn btn-close" id="title-bar-btn-close">
+        <svg viewBox="0 0 10 10" width="10" height="10"><path d="M0,0 L10,10 M0,10 L10,0" stroke="currentColor" stroke-width="1.2"/></svg>
+      </button>
+    </div>
+  </div>
+  <div class="glass-bg"></div>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="logo-area">
+        <img src="logo.jpg" alt="RyzionMC Logo" class="logo-img">
+        <h1>RyzionMC <span class="accent-text" data-i18n="logo_afk_client">AFK Client</span></h1>
+        <span id="godmode-active-text" class="godmode-active-text hidden" data-i18n="godmode_active" style="color: var(--danger); font-weight: 700; font-size: 0.9rem; text-shadow: 0 0 8px rgba(215, 58, 73, 0.6); text-transform: uppercase; margin-left: 0.5rem;">GOD MODE AKTİF</span>
+      </div>
+      <div class="global-actions">
+        <button id="btn-global-settings" class="btn btn-secondary" data-i18n="global_settings">Global Settings</button>
+      </div>
+    </header>
+
+    <div class="main-layout">
+      <!-- Sidebar: Accounts list -->
+      <aside class="sidebar">
+        <div class="sidebar-header-row">
+          <h2><span data-i18n="accounts_sidebar_title">Accounts</span><span id="accounts-count" class="thin-count">(0)</span></h2>
+          <button id="btn-add-account" class="btn btn-primary btn-xs" data-i18n="add_account">+ Add Account</button>
+        </div>
+        <div class="sidebar-batch-actions">
+          <button id="btn-batch-connect" class="btn btn-success btn-xs" data-i18n="btn_batch_connect">Connect All</button>
+          <button id="btn-batch-disconnect" class="btn btn-danger btn-xs" data-i18n="btn_batch_disconnect">Disconnect All</button>
+        </div>
+        <div id="batch-status-banner" class="batch-status-banner hidden">
+          <span class="pulse-indicator"></span>
+          <span id="batch-status-text" style="flex: 1;">Connecting bots...</span>
+          <button id="btn-stop-batch" class="btn btn-danger btn-xs" style="padding: 2px 6px; font-size: 0.75rem; line-height: 1; margin-left: 0.5rem;" data-i18n="btn_stop_batch">Stop</button>
+        </div>
+        <div id="accounts-list" class="accounts-list">
+          <!-- Dynamically populated -->
+          <div class="empty-state" data-i18n="no_accounts_yet">No accounts added yet.</div>
+        </div>
+      </aside>
+
+      <!-- Main Content Area -->
+      <main class="main-content">
+        <!-- Dashboard / Bot Control Panel -->
+        <section id="bot-panel" class="bot-panel hidden">
+          <div class="panel-header">
+            <div class="bot-title-info">
+              <div class="bot-title-wrapper">
+                <img id="current-bot-avatar" src="https://minotar.net/avatar/char/32" alt="avatar" class="bot-title-avatar" onerror="this.src='https://minotar.net/avatar/char/32'">
+                <h2 id="current-bot-username">username</h2>
+              </div>
+              <div class="bot-meta-badges">
+                <span id="badge-status" class="badge badge-offline">Offline</span>
+                <span id="badge-ping" class="badge badge-ping">Ping: 0ms</span>
+              </div>
+            </div>
+            <div class="bot-controls">
+              <button id="btn-toggle-bot" class="btn btn-success">Connect</button>
+              <button id="btn-edit-bot" class="btn btn-secondary" data-i18n="btn_edit">Edit Settings</button>
+              <button id="btn-delete-bot" class="btn btn-danger" data-i18n="btn_delete">Delete</button>
+            </div>
+          </div>
+
+          <div class="bot-grid">
+            <!-- Left: Terminal Logs -->
+            <div class="grid-card terminal-card">
+              <h3 data-i18n="live_logs">Live Console Logs</h3>
+              <div id="terminal-logs" class="terminal-logs">
+                <!-- Log streams go here -->
+              </div>
+              <div class="chat-input-area">
+                <input type="text" id="chat-input" placeholder="Type a chat message or command to send in-game..." data-i18n-placeholder="chat_placeholder" disabled />
+                <button id="btn-send-chat" class="btn btn-primary" data-i18n="btn_send" disabled>Send</button>
+              </div>
+            </div>
+
+            <!-- Right: Column container containing stats and radar -->
+            <div class="right-column-container">
+              <div class="grid-card stats-card">
+                <h3 data-i18n="vitals_title">Bot Vital Status</h3>
+                <div class="vitals-group">
+                  <div class="vital-row">
+                    <div class="vital-label">
+                      <span data-i18n="health_label">❤️ Health</span>
+                      <span id="vital-health-val">0 / 20</span>
+                    </div>
+                    <div class="vital-bar-container">
+                      <div id="vital-health-bar" class="vital-bar health-bar" style="width: 0%"></div>
+                    </div>
+                  </div>
+                  <div class="vital-row">
+                    <div class="vital-label">
+                      <span data-i18n="food_label">🍖 Food / Hunger</span>
+                      <span id="vital-food-val">0 / 20</span>
+                    </div>
+                    <div class="vital-bar-container">
+                      <div id="vital-food-bar" class="vital-bar food-bar" style="width: 0%"></div>
+                    </div>
+                  </div>
+                  <div class="vital-row">
+                    <div class="vital-label">
+                      <span data-i18n="xp_level_label">✨ Experience Level</span>
+                      <span id="vital-xp-val">Level 0 (0%)</span>
+                    </div>
+                    <div class="vital-bar-container">
+                      <div id="vital-xp-bar" class="vital-bar xp-bar" style="width: 0%"></div>
+                    </div>
+                  </div>
+                </div>
+                 <button id="btn-open-control" class="btn btn-primary" style="margin-top: 1rem; width: 100%; display: flex; justify-content: center; align-items: center; gap: 0.5rem;" data-i18n="btn_control_bot">Control & Radar</button>
+                 <button id="btn-open-inventory" class="btn btn-secondary" style="margin-top: 0.5rem; width: 100%; display: flex; justify-content: center; align-items: center; gap: 0.5rem;" data-i18n="btn_inventory">🎒 Inventory</button>
+
+                <h3 data-i18n="controls_title">Quick Controls</h3>
+                
+                <div class="quick-toggle-group">
+                  <div class="toggle-row">
+                    <label for="toggle-anti-afk" data-i18n="anti_afk_label">Anti-AFK Movement</label>
+                    <input type="checkbox" id="toggle-anti-afk" class="switch-checkbox">
+                  </div>
+                  <div class="toggle-row">
+                    <label for="toggle-gemini" data-i18n="ai_reply_label">AI Auto Reply</label>
+                    <input type="checkbox" id="toggle-gemini" class="switch-checkbox">
+                  </div>
+                  <div class="toggle-row">
+                    <label for="toggle-reconnect" data-i18n="reconnect_label">Auto-Reconnect</label>
+                    <input type="checkbox" id="toggle-reconnect" class="switch-checkbox">
+                  </div>
+                  <div class="toggle-row">
+                    <label for="toggle-respawn" data-i18n="respawn_label">Auto-Respawn</label>
+                    <input type="checkbox" id="toggle-respawn" class="switch-checkbox">
+                  </div>
+                  <div class="toggle-row">
+                    <label for="toggle-feed" data-i18n="feed_label">Auto-Feed (Auto Eat)</label>
+                    <input type="checkbox" id="toggle-feed" class="switch-checkbox">
+                  </div>
+                </div>
+
+                <h3 data-i18n="conn_details_title">Connection Details</h3>
+                <div class="info-table">
+                  <div class="info-row"><span class="label" data-i18n="host_label">Server Host:</span> <span id="info-host" class="val">-</span></div>
+                  <div class="info-row"><span class="label" data-i18n="port_label">Server Port:</span> <span id="info-port" class="val">-</span></div>
+                  <div class="info-row"><span class="label" data-i18n="auth_label">Auth Mode:</span> <span id="info-auth" class="val">-</span></div>
+                  <div class="info-row"><span class="label" data-i18n="coordinates_label">Coordinates:</span> <span id="info-coordinates" class="val">-</span></div>
+                  <div class="info-row"><span class="label" data-i18n="dimension_label">Dimension:</span> <span id="info-dimension" class="val">-</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Empty state when no bot selected -->
+        <section id="select-bot-prompt" class="empty-state-panel">
+          <div class="prompt-icon">🤖</div>
+          <h2 data-i18n="select_bot_title">Select or Create an Account</h2>
+          <p data-i18n="select_bot_desc">Choose an account from the sidebar or click "+ Add Account" to configure a new Minecraft bot.</p>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <!-- Modal: Add / Edit Account -->
+  <div id="modal-account" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="modal-title" data-i18n="add_account_title">Add Account</h2>
+        <span class="close-modal">&times;</span>
+      </div>
+      <form id="form-account">
+        <input type="hidden" id="account-id">
+        
+        <div class="tab-container">
+          <div class="tab-headers">
+            <button type="button" class="tab-btn active" data-tab="tab-basic" data-i18n="tab_basic">Basic</button>
+            <button type="button" class="tab-btn" data-tab="tab-afk" data-i18n="tab_afk">Anti-AFK</button>
+            <button type="button" class="tab-btn" data-tab="tab-gemini" data-i18n="tab_ai">AI Auto-Reply</button>
+            <button type="button" class="tab-btn hidden" id="tab-btn-ryzion" data-tab="tab-ryzion" data-i18n="tab_ryzion">RyzionMC Ayarları</button>
+          </div>
+          
+          <div class="tab-content active" id="tab-basic">
+            <div class="form-group">
+              <label for="acc-username" data-i18n="username_label">Minecraft Username</label>
+              <input type="text" id="acc-username" required placeholder="Steve" data-i18n-placeholder="username_placeholder">
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="acc-auth" data-i18n="auth_type_label">Auth Type</label>
+                <select id="acc-auth">
+                  <option value="offline" data-i18n="auth_offline">Offline</option>
+                  <option value="microsoft" data-i18n="auth_premium">Microsoft / Premium</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="acc-version" data-i18n="mc_version_label">MC Version (Empty = Auto)</label>
+                <input type="text" id="acc-version" placeholder="1.20.1">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="acc-host" data-i18n="server_ip_label">Server IP</label>
+                <input type="text" id="acc-host" required placeholder="play.example.com">
+              </div>
+              <div class="form-group">
+                <label for="acc-port" data-i18n="port_input_label">Port</label>
+                <input type="number" id="acc-port" value="25565">
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="acc-auto-commands" data-i18n="auto_commands_label">Auto Commands on Connect (one per line)</label>
+              <textarea id="acc-auto-commands" rows="3" placeholder="/login mypassword&#10;/lobby&#10;/wild"></textarea>
+            </div>
+            <div class="form-group">
+              <label for="acc-auto-commands-delay" data-i18n="commands_delay_label">Command Cooldown / Delay (ms)</label>
+              <input type="number" id="acc-auto-commands-delay" value="2000" min="0">
+            </div>
+            <div class="form-row">
+              <div class="form-group toggle-group">
+                <label for="acc-enabled" data-i18n="startup_connect_label">Connect automatically on startup</label>
+                <input type="checkbox" id="acc-enabled" class="switch-checkbox">
+              </div>
+              <div class="form-group toggle-group">
+                <label for="acc-reconnect" data-i18n="enable_reconnect_label">Enable Auto-Reconnect</label>
+                <input type="checkbox" id="acc-reconnect" class="switch-checkbox" checked>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group toggle-group">
+                <label for="acc-respawn" data-i18n="respawn_death_label">Auto-Respawn on Death</label>
+                <input type="checkbox" id="acc-respawn" class="switch-checkbox" checked>
+              </div>
+              <div class="form-group">
+                <label for="acc-reconnect-delay" data-i18n="reconnect_delay_label">Reconnect Delay (ms)</label>
+                <input type="number" id="acc-reconnect-delay" value="10000">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group toggle-group">
+                <label for="acc-feed" data-i18n="feed_label">Auto-Feed (Auto Eat)</label>
+                <input type="checkbox" id="acc-feed" class="switch-checkbox" checked>
+              </div>
+              <div class="form-group">
+                <!-- Spacer -->
+              </div>
+            </div>
+          </div>
+
+          <div class="tab-content" id="tab-afk">
+            <div class="form-group toggle-group">
+              <label for="acc-afk-enabled" data-i18n="afk_enable_label">Enable Anti-AFK</label>
+              <input type="checkbox" id="acc-afk-enabled" class="switch-checkbox" checked>
+            </div>
+            <div class="form-group">
+              <label for="acc-afk-mode" data-i18n="afk_mode_label">AFK Mode</label>
+              <select id="acc-afk-mode">
+                <option value="random" data-i18n="afk_mode_random">Random Actions (Jump, Walk, Rotate)</option>
+                <option value="jump" data-i18n="afk_mode_jump">Jump Only</option>
+                <option value="walk" data-i18n="afk_mode_walk">Walk Forward/Backward Only</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="acc-afk-interval" data-i18n="afk_interval_label">Action Interval (ms)</label>
+              <input type="number" id="acc-afk-interval" value="8000">
+            </div>
+          </div>
+
+          <div class="tab-content" id="tab-gemini">
+            <div class="form-group toggle-group">
+              <label for="acc-gemini-enabled" data-i18n="ai_enable_label">Enable AI Auto-Reply</label>
+              <input type="checkbox" id="acc-gemini-enabled" class="switch-checkbox">
+            </div>
+            
+            <div class="form-row">
+              <div class="form-group">
+                <label for="acc-gemini-provider" data-i18n="ai_provider_label">AI Provider</label>
+                <select id="acc-gemini-provider">
+                  <option value="gemini">Gemini (Google)</option>
+                  <option value="openai">ChatGPT (OpenAI)</option>
+                  <option value="claude">Claude (Anthropic)</option>
+                  <option value="deepseek">DeepSeek</option>
+                  <option value="ollama">Ollama (Local)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="acc-gemini-model" data-i18n="ai_model_label">Model Name (e.g. gpt-4o-mini)</label>
+                <input type="text" id="acc-gemini-model" placeholder="gemini-2.5-flash">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="acc-gemini-key" data-i18n="ai_key_label">Custom API Key (Optional, uses global key if empty)</label>
+              <input type="password" id="acc-gemini-key" placeholder="API Key">
+            </div>
+
+            <div class="form-group">
+              <label for="acc-gemini-url" data-i18n="ai_url_label">Custom API URL (Optional, uses provider default if empty)</label>
+              <input type="text" id="acc-gemini-url" placeholder="https://api.openai.com/v1/chat/completions">
+            </div>
+
+            <div class="form-group">
+              <label for="acc-gemini-triggers" data-i18n="ai_triggers_label">Trigger Keywords (comma separated, e.g. hello,help,bot)</label>
+              <input type="text" id="acc-gemini-triggers" placeholder="hi,afk,bot">
+            </div>
+            <div class="form-group toggle-group">
+              <label for="acc-gemini-respond-all" data-i18n="ai_respond_all_label">Respond to EVERY chat message in lobby (Spam Risk!)</label>
+              <input type="checkbox" id="acc-gemini-respond-all" class="switch-checkbox">
+            </div>
+            <div class="form-group">
+              <label for="acc-gemini-instruction" data-i18n="ai_instruction_label">System Instruction (Character Prompt)</label>
+              <textarea id="acc-gemini-instruction" rows="3" placeholder="You are a friendly Minecraft player. Keep responses short and conversational. Speak in the language the player spoke to you." data-i18n-placeholder="ai_instruction_placeholder"></textarea>
+            </div>
+          </div>
+
+          <div class="tab-content" id="tab-ryzion">
+            <div class="ryzion-header">
+              <h3 data-i18n="necron_settings_title">Necron Skyblock Ayarları</h3>
+              <p class="ryzion-desc" data-i18n="necron_settings_desc">Konsola hızlı komut göndermek için aşağıdaki butonları kullanabilirsiniz:</p>
+            </div>
+            
+            <div class="ryzion-body">
+              <!-- Shortcuts & Menus -->
+              <div class="ryzion-category">
+                <h4 class="ryzion-cat-title" data-i18n="cat_shortcuts">Kısayollar ve Menüler</h4>
+                <div class="ryzion-grid">
+                  <button type="button" class="btn btn-ryzion-cmd" data-cmd="/rmcfc toggle shiftf">
+                    <span class="cmd-icon">⚡</span>
+                    <span class="cmd-label" data-i18n="ryzion_shiftf">Hızlı Menü (Shift+F)</span>
+                    <span class="cmd-text">/rmcfc toggle shiftf</span>
+                  </button>
+                  <button type="button" class="btn btn-ryzion-cmd" data-cmd="/rmcfc toggle shiftq">
+                    <span class="cmd-icon">⚖️</span>
+                    <span class="cmd-label" data-i18n="ryzion_shiftq">Hızlı İhale (Shift+Q)</span>
+                    <span class="cmd-text">/rmcfc toggle shiftq</span>
+                  </button>
+                  <button type="button" class="btn btn-ryzion-cmd" data-cmd="/rmcfc toggle shiftrightclick">
+                    <span class="cmd-icon">📦</span>
+                    <span class="cmd-label" data-i18n="ryzion_shiftrightclick">Hızlı Ender Sandığı</span>
+                    <span class="cmd-text">/rmcfc toggle shiftrightclick</span>
+                  </button>
+                  <button type="button" class="btn btn-ryzion-cmd" data-cmd="/menu">
+                    <span class="cmd-icon">📜</span>
+                    <span class="cmd-label" data-i18n="ryzion_menu">Ana Menü</span>
+                    <span class="cmd-text">/menu</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Notifications -->
+              <div class="ryzion-category">
+                <h4 class="ryzion-cat-title" data-i18n="cat_notifications">Bildirimler ve Mesajlar</h4>
+                <div class="ryzion-grid">
+                  <button type="button" class="btn btn-ryzion-cmd" data-cmd="/msgtoggle">
+                    <span class="cmd-icon">💬</span>
+                    <span class="cmd-label" data-i18n="ryzion_msgtoggle">Özel Mesajlar</span>
+                    <span class="cmd-text">/msgtoggle</span>
+                  </button>
+                  <button type="button" class="btn btn-ryzion-cmd" data-cmd="/tptoggle">
+                    <span class="cmd-icon">🌀</span>
+                    <span class="cmd-label" data-i18n="ryzion_tptoggle">Işınlanma İstekleri</span>
+                    <span class="cmd-text">/tptoggle</span>
+                  </button>
+                  <button type="button" class="btn btn-ryzion-cmd" data-cmd="/paytoggle">
+                    <span class="cmd-icon">💸</span>
+                    <span class="cmd-label" data-i18n="ryzion_paytoggle">Para Gönderimi</span>
+                    <span class="cmd-text">/paytoggle</span>
+                  </button>
+                  <button type="button" class="btn btn-ryzion-cmd" data-cmd="/trade toggle">
+                    <span class="cmd-icon">🤝</span>
+                    <span class="cmd-label" data-i18n="ryzion_tradetoggle">Takas İstekleri</span>
+                    <span class="cmd-text">/trade toggle</span>
+                  </button>
+                  <button type="button" class="btn btn-ryzion-cmd" data-cmd="/çevir bildirim">
+                    <span class="cmd-icon">🌐</span>
+                    <span class="cmd-label" data-i18n="ryzion_translate">Çeviri Bildirimleri</span>
+                    <span class="cmd-text">/çevir bildirim</span>
+                  </button>
+                  <button type="button" class="btn btn-ryzion-cmd" data-cmd="/çekiliş bildirim">
+                    <span class="cmd-icon">🎉</span>
+                    <span class="cmd-label" data-i18n="ryzion_giveaway">Çekiliş Bildirimleri</span>
+                    <span class="cmd-text">/çekiliş bildirim</span>
+                  </button>
+                  <button type="button" class="btn btn-ryzion-cmd" data-cmd="/dilek bildirim">
+                    <span class="cmd-icon">⛲</span>
+                    <span class="cmd-label" data-i18n="ryzion_wishingwell">Dilek Kuyusu</span>
+                    <span class="cmd-text">/dilek bildirim</span>
+                  </button>
+                  <button type="button" class="btn btn-ryzion-cmd" data-cmd="/duyuru bildirim">
+                    <span class="cmd-icon">📣</span>
+                    <span class="cmd-label" data-i18n="ryzion_announcements">Genel Duyurular</span>
+                    <span class="cmd-text">/duyuru bildirim</span>
+                  </button>
+                  <button type="button" class="btn btn-ryzion-cmd" data-cmd="/etkinlik bildirim">
+                    <span class="cmd-icon">📅</span>
+                    <span class="cmd-label" data-i18n="ryzion_events">Etkinlik Bildirimleri</span>
+                    <span class="cmd-text">/etkinlik bildirim</span>
+                  </button>
+                  <button type="button" class="btn btn-ryzion-cmd" data-cmd="/hapishane bildirim">
+                    <span class="cmd-icon">⛓️</span>
+                    <span class="cmd-label" data-i18n="ryzion_jail">Hapishane Duyuruları</span>
+                    <span class="cmd-text">/hapishane bildirim</span>
+                  </button>
+                  <button type="button" class="btn btn-ryzion-cmd" data-cmd="/adareklam bildirim">
+                    <span class="cmd-icon">📢</span>
+                    <span class="cmd-label" data-i18n="ryzion_islandads">Ada Reklamları</span>
+                    <span class="cmd-text">/adareklam bildirim</span>
+                  </button>
+                  <button type="button" class="btn btn-ryzion-cmd" data-cmd="/za bildirim">
+                    <span class="cmd-icon">🔑</span>
+                    <span class="cmd-label" data-i18n="ryzion_keyoftime">Zamanın Anahtarı</span>
+                    <span class="cmd-text">/za bildirim</span>
+                  </button>
+                  <button type="button" class="btn btn-ryzion-cmd" data-cmd="/tılsım bildirim">
+                    <span class="cmd-icon">✨</span>
+                    <span class="cmd-label" data-i18n="ryzion_talismans">Tılsım Bildirimleri</span>
+                    <span class="cmd-text">/tılsım bildirim</span>
+                  </button>
+                  <button type="button" class="btn btn-ryzion-cmd" data-cmd="/ic mentiontoggle">
+                    <span class="cmd-icon">🔔</span>
+                    <span class="cmd-label" data-i18n="ryzion_mentions">Etiket Bildirimleri</span>
+                    <span class="cmd-text">/ic mentiontoggle</span>
+                  </button>
+                  <button type="button" class="btn btn-ryzion-cmd" data-cmd="/kervancı bildirim">
+                    <span class="cmd-icon">🐫</span>
+                    <span class="cmd-label" data-i18n="ryzion_caravaneer">Kervancı Bildirimleri</span>
+                    <span class="cmd-text">/kervancı bildirim</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Visual & UI -->
+              <div class="ryzion-category">
+                <h4 class="ryzion-cat-title" data-i18n="cat_visual">Görsel ve Arayüz</h4>
+                <div class="ryzion-grid">
+                  <button type="button" class="btn btn-ryzion-cmd" data-cmd="/sb">
+                    <span class="cmd-icon">📊</span>
+                    <span class="cmd-label" data-i18n="ryzion_scoreboard">Scoreboard (Aç/Kapa)</span>
+                    <span class="cmd-text">/sb</span>
+                  </button>
+                  <button type="button" class="btn btn-ryzion-cmd" data-cmd="/isholo toggle">
+                    <span class="cmd-icon">🔮</span>
+                    <span class="cmd-label" data-i18n="ryzion_islandholo">Ada Hologramı</span>
+                    <span class="cmd-text">/isholo toggle</span>
+                  </button>
+                  <button type="button" class="btn btn-ryzion-cmd" data-cmd="/rmcmhb toggle">
+                    <span class="cmd-icon">❤️</span>
+                    <span class="cmd-label" data-i18n="ryzion_mobhealthbar">Mob Can Barları</span>
+                    <span class="cmd-text">/rmcmhb toggle</span>
+                  </button>
+                  <button type="button" class="btn btn-ryzion-cmd" data-cmd="/rmcpv mode ALL">
+                    <span class="cmd-icon">👥</span>
+                    <span class="cmd-label" data-i18n="ryzion_visibility_all">Görünürlük (Herkes)</span>
+                    <span class="cmd-text">/rmcpv mode ALL</span>
+                  </button>
+                  <button type="button" class="btn btn-ryzion-cmd" data-cmd="/rmcpv mode ISLAND_ONLY">
+                    <span class="cmd-icon">🏝️</span>
+                    <span class="cmd-label" data-i18n="ryzion_visibility_island">Görünürlük (Ada)</span>
+                    <span class="cmd-text">/rmcpv mode ISLAND_ONLY</span>
+                  </button>
+                  <button type="button" class="btn btn-ryzion-cmd" data-cmd="/rmcpv mode NONE">
+                    <span class="cmd-icon">👻</span>
+                    <span class="cmd-label" data-i18n="ryzion_visibility_none">Görünürlük (Hiçbiri)</span>
+                    <span class="cmd-text">/rmcpv mode NONE</span>
+                  </button>
+                  <button type="button" class="btn btn-ryzion-cmd" data-cmd="/rmcpv mode STAFF_ONLY">
+                    <span class="cmd-icon">🛡️</span>
+                    <span class="cmd-label" data-i18n="ryzion_visibility_staff">Görünürlük (Yetkili)</span>
+                    <span class="cmd-text">/rmcpv mode STAFF_ONLY</span>
+                  </button>
+                  <button type="button" class="btn btn-ryzion-cmd" data-cmd="/rmcpv mode VIP_ONLY">
+                    <span class="cmd-icon">👑</span>
+                    <span class="cmd-label" data-i18n="ryzion_visibility_vip">Görünürlük (VIP)</span>
+                    <span class="cmd-text">/rmcpv mode VIP_ONLY</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Gameplay -->
+              <div class="ryzion-category">
+                <h4 class="ryzion-cat-title" data-i18n="cat_gameplay">Oynanış Özellikleri</h4>
+                <div class="ryzion-grid">
+                  <button type="button" class="btn btn-ryzion-cmd" data-cmd="/emf toggle">
+                    <span class="cmd-icon">🎣</span>
+                    <span class="cmd-label" data-i18n="ryzion_customfishing">Özel Balıkçılık</span>
+                    <span class="cmd-text">/emf toggle</span>
+                  </button>
+                  <button type="button" class="btn btn-ryzion-cmd" data-cmd="/gsit toggle">
+                    <span class="cmd-icon">🪑</span>
+                    <span class="cmd-label" data-i18n="ryzion_sitblocks">Bloklara Oturma</span>
+                    <span class="cmd-text">/gsit toggle</span>
+                  </button>
+                  <button type="button" class="btn btn-ryzion-cmd" data-cmd="/gsit playertoggle">
+                    <span class="cmd-icon">🧍</span>
+                    <span class="cmd-label" data-i18n="ryzion_sitplayers">Oyunculara Oturma</span>
+                    <span class="cmd-text">/gsit playertoggle</span>
+                  </button>
+                  <button type="button" class="btn btn-ryzion-cmd" data-cmd="/rmchelper toggle">
+                    <span class="cmd-icon">🎒</span>
+                    <span class="cmd-label" data-i18n="ryzion_helper">Oyuncu Yardımcısı</span>
+                    <span class="cmd-text">/rmchelper toggle</span>
+                  </button>
+                </div>
+              </div>
+
+
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary close-modal-btn" data-i18n="cancel">Cancel</button>
+          <button type="submit" class="btn btn-primary" data-i18n="save_account">Save Account</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Global Settings -->
+  <div id="modal-settings" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 1rem; flex: 1;">
+          <h2 data-i18n="global_settings_title" style="margin: 0;">Global Settings</h2>
+        </div>
+        <span class="close-modal">&times;</span>
+      </div>
+      <form id="form-global-settings">
+        <div class="modal-body">
+          <!-- Category: Panel / Dashboard Settings -->
+          <div class="settings-category">
+            <h3 class="category-title" data-i18n="section_panel_settings">Dashboard Settings</h3>
+            <div class="form-group">
+              <label for="global-language" data-i18n="language_label">Language</label>
+              <select id="global-language">
+                <option value="en">English</option>
+                <option value="tr">Türkçe</option>
+                <option value="az">Azərbaycan dili</option>
+                <option value="kk">Қазақ тілі</option>
+                <option value="ky">Кыргызча</option>
+                <option value="zh">中文</option>
+                <option value="ja">日本語</option>
+                <option value="ar">العربية</option>
+                <option value="fr">Français</option>
+                <option value="ru">Русский</option>
+                <option value="de">Deutsch</option>
+              </select>
+            </div>
+            <div class="form-group" style="display: none;">
+              <label for="global-web-port" data-i18n="dashboard_port_label">Web GUI Port</label>
+              <input type="number" id="global-web-port" required value="2855">
+              <small class="help-text" data-i18n="port_help_text">Server restart required to apply port changes.</small>
+            </div>
+            <div class="form-group">
+              <label for="global-panel-username" data-i18n="panel_username_label">Client Username</label>
+              <input type="text" id="global-panel-username" required placeholder="admin">
+            </div>
+            <div class="form-group">
+              <label for="global-panel-password" data-i18n="panel_password_label">Client Password</label>
+              <input type="password" id="global-panel-password" required placeholder="admin">
+              <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem;">
+                <input type="checkbox" id="toggle-global-panel-password" style="width: auto; margin: 0; cursor: pointer;">
+                <label for="toggle-global-panel-password" data-i18n="show_password" style="font-size: 0.8rem; font-weight: normal; cursor: pointer; user-select: none; margin: 0; color: var(--text-muted);">Show Password</label>
+              </div>
+            </div>
+            <div class="form-group" style="margin-top: 0.5rem;">
+              <small id="remote-access-text" style="font-size: 0.8rem; font-weight: 300; color: var(--text-muted); line-height: 1.4; display: block;"></small>
+            </div>
+          </div>
+
+          <!-- Category: AI API Keys -->
+          <div class="settings-category">
+            <h3 class="category-title" data-i18n="section_ai_settings">AI API Settings</h3>
+            <div class="form-group">
+              <label for="global-gemini-key" data-i18n="gemini_key_label">Global Gemini API Key</label>
+              <input type="password" id="global-gemini-key" placeholder="AIzaSy...">
+            </div>
+            <div class="form-group">
+              <label for="global-openai-key" data-i18n="openai_key_label">Global OpenAI API Key</label>
+              <input type="password" id="global-openai-key" placeholder="sk-...">
+            </div>
+            <div class="form-group">
+              <label for="global-claude-key" data-i18n="claude_key_label">Global Claude API Key</label>
+              <input type="password" id="global-claude-key" placeholder="sk-ant-...">
+            </div>
+            <div class="form-group">
+              <label for="global-deepseek-key" data-i18n="deepseek_key_label">Global DeepSeek API Key</label>
+              <input type="password" id="global-deepseek-key" placeholder="sk-...">
+            </div>
+            <div class="form-group">
+              <label for="global-ollama-url" data-i18n="ollama_url_label">Global Ollama URL</label>
+              <input type="text" id="global-ollama-url" placeholder="http://localhost:11434">
+            </div>
+          </div>
+          <!-- Open Source Licenses Button -->
+          <div style="margin-top: 1rem; display: flex; justify-content: center;">
+            <button type="button" id="btn-show-licenses" class="btn btn-secondary btn-xs" data-i18n="btn_licenses">Open Source Licenses</button>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary close-modal-btn" data-i18n="cancel">Cancel</button>
+          <button type="submit" class="btn btn-primary" data-i18n="save_settings">Save Settings</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Bot Radar & Controls -->
+  <div id="modal-control" class="modal hidden">
+    <div class="modal-content modal-control-content">
+      <div class="modal-header">
+        <h2 id="modal-control-title" data-i18n="minimap_title">Minimap Radar</h2>
+        <span class="close-modal">&times;</span>
+      </div>
+      <div class="modal-body control-modal-body">
+        <div class="radar-modal-layout">
+          <!-- Radar visual area -->
+          <div class="radar-visual-area">
+            <canvas id="minimap-canvas" width="220" height="220"></canvas>
+            <div class="radar-coordinates" id="radar-coordinates-wrapper">
+              <span class="label" data-i18n="coordinates_label">Coordinates:</span>
+              <span id="radar-info-coordinates" class="val">-</span>
+            </div>
+            <div class="radar-legend">
+              <div class="legend-item"><span class="legend-dot dot-self"></span> <span data-i18n="control_self">Self</span></div>
+              <div class="legend-item"><span class="legend-dot dot-player"></span> <span data-i18n="entity_player">Player</span></div>
+              <div class="legend-item"><span class="legend-dot dot-friendly"></span> <span data-i18n="entity_friendly">Friendly</span></div>
+              <div class="legend-item"><span class="legend-dot dot-hostile"></span> <span data-i18n="entity_hostile">Hostile</span></div>
+            </div>
+          </div>
+          
+          <!-- Movement Controls pad -->
+          <div class="radar-control-area">
+            <h3 data-i18n="movement_controls_title">Movement Controls</h3>
+            <div class="movement-pad-container">
+              <div class="movement-pad">
+                <div></div>
+                <button class="btn-ctrl" data-action="forward" title="W">▲</button>
+                <div></div>
+                <button class="btn-ctrl" data-action="left" title="A">◀</button>
+                <button class="btn-ctrl" data-action="back" title="S">▼</button>
+                <button class="btn-ctrl" data-action="right" title="D">▶</button>
+              </div>
+              <div class="movement-aux">
+                <button class="btn-ctrl btn-aux" data-action="jump" title="Space" data-i18n="control_jump">Jump</button>
+                <button class="btn-ctrl btn-aux" data-action="sneak" title="Shift" data-i18n="control_sneak">Sneak</button>
+                <button class="btn-ctrl btn-aux" data-action="sprint" title="Ctrl" data-i18n="control_sprint">Sprint</button>
+              </div>
+            </div>
+            <div class="control-pad-helper-text" data-i18n="movement_helper_text">You can control using W, A, S, D, Ctrl, Shift and Space keys, or by clicking.</div>
+
+            <!-- Head Controls Category -->
+            <h3 style="margin-top: 1.5rem;" data-i18n="head_controls_title">Head Controls</h3>
+            <div class="head-controls-container">
+              <div class="head-pad">
+                <div></div>
+                <div class="head-indicator-btn" id="head-look-up">▲</div>
+                <div></div>
+                <div class="head-indicator-btn" id="head-look-left">◀</div>
+                <div class="head-indicator-btn" id="head-look-down">▼</div>
+                <div class="head-indicator-btn" id="head-look-right">▶</div>
+              </div>
+              <div class="head-angles-display">
+                <div>Yaw: <span class="angle-val" id="angle-yaw-val">0°</span></div>
+                <div>Pitch: <span class="angle-val" id="angle-pitch-val">0°</span></div>
+              </div>
+            </div>
+            <div class="control-pad-helper-text" data-i18n="head_helper_text">You can control using the arrow keys on the keyboard.</div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary close-modal-btn" data-i18n="close">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Bot Inventory -->
+  <div id="modal-inventory" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 data-i18n="inventory_title">Bot Inventory</h2>
+        <span class="close-modal">&times;</span>
+      </div>
+      <div class="modal-body">
+        <div class="inventory-container">
+          <!-- Main Inventory Grid (Slots 9-35) -->
+          <div class="inventory-grid" id="inventory-main-grid">
+            <!-- Dynamically populated 27 slots -->
+          </div>
+          
+          <div class="inventory-separator"></div>
+          
+          <!-- Hotbar Grid (Slots 36-44) -->
+          <div class="inventory-grid" id="inventory-hotbar-grid">
+            <!-- Dynamically populated 9 slots -->
+          </div>
+
+          <!-- Drop Area Zone -->
+          <div class="inventory-drop-zone" id="inventory-drop-zone">
+            <span class="drop-icon">🗑️</span>
+            <span class="drop-text" data-i18n="drop_zone_text">Drag item here to drop</span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary close-modal-btn" data-i18n="close">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Batch Connect -->
+  <div id="modal-batch-connect" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="modal-batch-title" data-i18n="batch_connect_title">Batch Connect All Bots</h2>
+        <span class="close-modal">&times;</span>
+      </div>
+      <div class="modal-body">
+        <p data-i18n="batch_connect_desc" style="margin-bottom: 1.25rem;">This will connect all offline bot accounts one-by-one with a random delay (1-60s) between connections to prevent IP rate limiting.</p>
+        
+        <!-- God Mode batch connect options (hidden by default) -->
+        <div id="godmode-batch-options" class="hidden" style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-color);">
+          <div class="form-group" style="margin-bottom: 1.25rem;">
+            <label style="font-weight: 600; margin-bottom: 0.5rem; display: block;" data-i18n="batch_connect_mode_label">Connection Mode</label>
+            <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+              <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                <input type="radio" name="batch-connect-mode" value="configured" checked style="cursor: pointer;">
+                <span data-i18n="mode_configured">Use each account's configured server</span>
+              </label>
+              <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                <input type="radio" name="batch-connect-mode" value="custom" style="cursor: pointer;">
+                <span data-i18n="mode_custom">Connect all accounts to a single custom server IP</span>
+              </label>
+            </div>
+          </div>
+          
+          <div id="batch-custom-fields" class="hidden">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="batch-custom-host" data-i18n="server_ip_label">Server IP</label>
+                <input type="text" id="batch-custom-host" placeholder="play.example.com" style="width: 100%; margin-top: 0.25rem;">
+              </div>
+              <div class="form-group">
+                <label for="batch-custom-port" data-i18n="port_input_label">Port</label>
+                <input type="number" id="batch-custom-port" value="25565" style="width: 100%; margin-top: 0.25rem;">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary close-modal-btn" data-i18n="cancel">Cancel</button>
+        <button id="btn-confirm-batch-connect" class="btn btn-success" data-i18n="btn_connect_all_confirm">Start Connecting</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Delete Confirmation -->
+  <div id="modal-delete-confirm" class="modal hidden">
+    <div class="modal-content" style="max-width: 400px;">
+      <div class="modal-header">
+        <h2 data-i18n="delete_confirm_title">Delete Account</h2>
+        <span class="close-modal">&times;</span>
+      </div>
+      <div class="modal-body" style="padding: 1.5rem 1.5rem 1rem;">
+        <p data-i18n="delete_confirm_text" style="color: var(--text-white); font-size: 1rem; line-height: 1.5; margin: 0; text-align: center;">Are you sure you want to delete this account?</p>
+      </div>
+      <div class="modal-actions" style="justify-content: center; gap: 1rem; padding: 1rem 1.5rem 1.25rem;">
+        <button id="btn-delete-cancel" class="btn btn-secondary" style="min-width: 100px;" data-i18n="btn_no">No</button>
+        <button id="btn-delete-confirm" class="btn btn-danger" style="min-width: 100px;" data-i18n="btn_yes">Yes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Error Alert -->
+  <div id="modal-error-alert" class="modal hidden">
+    <div class="modal-content" style="max-width: 400px; border-color: rgba(215, 58, 73, 0.3);">
+      <div class="modal-header" style="border-bottom: 1px solid rgba(215, 58, 73, 0.15);">
+        <h2 style="color: var(--danger); display: flex; align-items: center; gap: 0.5rem; margin: 0;">
+          <span style="font-size: 1.2rem;">⚠️</span>
+          <span data-i18n="error_title">Hata / Error</span>
+        </h2>
+        <span class="close-modal">&times;</span>
+      </div>
+      <div class="modal-body" style="padding: 1.5rem 1.5rem 1.25rem;">
+        <p id="error-alert-text" style="color: var(--text-white); font-size: 0.95rem; line-height: 1.5; margin: 0; text-align: center; white-space: pre-wrap;"></p>
+      </div>
+      <div class="modal-actions" style="justify-content: center; padding: 1rem 1.5rem 1.25rem; border-top: 1px solid rgba(215, 58, 73, 0.15);">
+        <button id="btn-error-close" class="btn btn-danger close-modal-btn" style="min-width: 120px;" data-i18n="btn_ok">Tamam / OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Microsoft Authentication Link -->
+  <div id="modal-msa-auth" class="modal hidden">
+    <div class="modal-content" style="max-width: 420px; border-color: var(--accent-color);">
+      <div class="modal-header">
+        <h2 style="color: var(--accent-color); display: flex; align-items: center; gap: 0.5rem; margin: 0;">
+          <span style="font-size: 1.25rem;">🎮</span>
+          <span data-i18n="msa_auth_title">Microsoft Authentication</span>
+        </h2>
+        <span class="close-modal">&times;</span>
+      </div>
+      <div class="modal-body" style="padding: 1.5rem 1.5rem 1.25rem; text-align: center;">
+        <p data-i18n="msa_auth_desc" style="font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.25rem; color: var(--text-primary);">
+          To link your Minecraft account, please log in with Microsoft. Click the button below, and enter the following verification code:
+        </p>
+        <div id="msa-code-display" style="background: rgba(102, 252, 241, 0.1); border: 2px dashed var(--accent-color); border-radius: 8px; padding: 0.75rem 1.5rem; font-size: 1.5rem; font-weight: 700; color: var(--accent-color); letter-spacing: 2px; margin-bottom: 1.5rem; display: inline-block;">
+          XXXX-XXXX
+        </div>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem;">
+          <span data-i18n="msa_auth_account">Bot Account:</span> <strong id="msa-bot-username">-</strong>
+        </p>
+        <a id="btn-msa-login" href="#" target="_blank" class="btn btn-primary" style="display: inline-block; width: 100%; text-align: center; text-decoration: none; padding: 0.75rem; font-size: 1rem;" data-i18n="btn_msa_login">Log in with Microsoft</a>
+      </div>
+      <div class="modal-actions" style="justify-content: flex-end; padding: 1rem 1.5rem 1.25rem; border-top: 1px solid var(--border-color);">
+        <button id="btn-msa-close" type="button" class="btn btn-secondary close-modal-btn" style="min-width: 100px;" data-i18n="close">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: God Mode Authentication -->
+  <div id="modal-godmode-auth" class="modal hidden">
+    <div class="modal-content" style="max-width: 400px; border-color: rgba(215, 58, 73, 0.3);">
+      <div class="modal-header" style="border-bottom: 1px solid rgba(215, 58, 73, 0.15);">
+        <h2 style="color: var(--danger); display: flex; align-items: center; gap: 0.5rem; margin: 0;">
+          <span style="font-size: 1.2rem;">🔑</span>
+          <span data-i18n="godmode_auth_title">God Mode Authentication</span>
+        </h2>
+        <span class="close-modal">&times;</span>
+      </div>
+      <form id="form-godmode-auth">
+        <div class="modal-body" style="padding: 1.5rem 1.5rem 1.25rem;">
+          <div class="form-group">
+            <label for="godmode-password" data-i18n="godmode_password_label">Authentication Password</label>
+            <input type="password" id="godmode-password" placeholder="••••••••" required style="text-align: center; font-size: 1.1rem; letter-spacing: 0.1rem; width: 100%; margin-top: 0.5rem;">
+            <div style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; margin-top: 0.5rem;">
+              <input type="checkbox" id="toggle-godmode-password" style="width: auto; margin: 0; cursor: pointer;">
+              <label for="toggle-godmode-password" data-i18n="show_password" style="font-size: 0.8rem; font-weight: normal; cursor: pointer; user-select: none; margin: 0; color: var(--text-muted);">Show Password</label>
+            </div>
+          </div>
+        </div>
+        <div class="modal-actions" style="justify-content: center; gap: 1rem; padding: 1rem 1.5rem 1.25rem; border-top: 1px solid rgba(215, 58, 73, 0.15);">
+          <button id="btn-godmode-cancel" type="button" class="btn btn-secondary close-modal-btn" style="min-width: 100px;" data-i18n="cancel">Cancel</button>
+          <button type="submit" class="btn btn-danger" style="min-width: 100px;" data-i18n="btn_ok">OK</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Open Source Licenses -->
+  <div id="modal-licenses" class="modal hidden">
+    <div class="modal-content" style="max-width: 600px;">
+      <div class="modal-header">
+        <h2 data-i18n="licenses_title">Open Source Licenses</h2>
+        <span class="close-modal">&times;</span>
+      </div>
+      <div class="modal-body" style="max-height: 400px; overflow-y: auto; font-size: 0.85rem; line-height: 1.5; color: var(--text-color);">
+        <p data-i18n="licenses_intro" style="margin-bottom: 1rem;">This application is built using the following open source libraries and tools:</p>
+        
+        <div style="margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color);">
+          <h4 style="color: var(--primary); margin-bottom: 0.25rem;">Mineflayer</h4>
+          <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem;">License: MIT</p>
+          <pre style="background: rgba(0, 0, 0, 0.25); padding: 0.5rem; border-radius: 4px; overflow-x: auto; font-family: monospace; font-size: 0.75rem; white-space: pre-wrap; color: #a9b7c6; border: 1px solid rgba(255, 255, 255, 0.05);">Copyright (c) 2015 PrismarineJS
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.</pre>
+        </div>
+
+        <div style="margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color);">
+          <h4 style="color: var(--primary); margin-bottom: 0.25rem;">Express</h4>
+          <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem;">License: MIT</p>
+          <pre style="background: rgba(0, 0, 0, 0.25); padding: 0.5rem; border-radius: 4px; overflow-x: auto; font-family: monospace; font-size: 0.75rem; white-space: pre-wrap; color: #a9b7c6; border: 1px solid rgba(255, 255, 255, 0.05);">Copyright (c) 2009-2014 TJ Holowaychuk &lt;tj@vision-media.ca&gt;
+Copyright (c) 2013-2014 Roman Shtylman &lt;shtylman+expressjs@gmail.com&gt;
+Copyright (c) 2014-2015 Douglas Christopher Wilson &lt;doug@somethingdoug.com&gt;
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.</pre>
+        </div>
+
+        <div style="margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color);">
+          <h4 style="color: var(--primary); margin-bottom: 0.25rem;">Socket.io</h4>
+          <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem;">License: MIT</p>
+          <pre style="background: rgba(0, 0, 0, 0.25); padding: 0.5rem; border-radius: 4px; overflow-x: auto; font-family: monospace; font-size: 0.75rem; white-space: pre-wrap; color: #a9b7c6; border: 1px solid rgba(255, 255, 255, 0.05);">Copyright (c) 2014-2021 Guillermo Rauch
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.</pre>
+        </div>
+
+        <div style="margin-bottom: 1rem; padding-bottom: 1rem;">
+          <h4 style="color: var(--primary); margin-bottom: 0.25rem;">@google/genai</h4>
+          <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem;">License: Apache-2.0</p>
+          <pre style="background: rgba(0, 0, 0, 0.25); padding: 0.5rem; border-radius: 4px; overflow-x: auto; font-family: monospace; font-size: 0.75rem; white-space: pre-wrap; color: #a9b7c6; border: 1px solid rgba(255, 255, 255, 0.05);">Copyright 2024 Google LLC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.</pre>
+        </div>
+
+      </div>
+      <div class="modal-actions" style="justify-content: flex-end; padding: 1rem 1.5rem 1.25rem;">
+        <button id="btn-close-licenses" type="button" class="btn btn-secondary close-modal-btn" style="min-width: 100px;" data-i18n="close">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="translations.js"></script>
+  <script src="app.js?v=1.0.2"></script>
+</body>
+</html>

@@ -1,0 +1,79 @@
+{
+  "name": "ryzionmc-afk-client",
+  "version": "1.0.0",
+  "description": "Minecraft AFK Client with Web GUI and Gemini Integration",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder",
+    "dist:win": "electron-builder --win",
+    "dist:mac": "electron-builder --mac",
+    "dist:linux": "electron-builder --linux",
+    "dist:all": "electron-builder --win --mac --linux"
+  },
+  "dependencies": {
+    "@google/genai": "^2.10.0",
+    "electron-updater": "^6.2.1",
+    "express": "^4.19.2",
+    "mineflayer": "^4.37.1",
+    "socket.io": "^4.7.5"
+  },
+  "devDependencies": {
+    "electron": "^31.0.0",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.ryzionmc.afkclient",
+    "productName": "RyzionMC AFK Client",
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "RyzionMC AFK Client"
+    },
+    "mac": {
+      "target": [
+        "dmg",
+        "zip"
+      ],
+      "category": "public.app-category.utilities"
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb",
+        "flatpak"
+      ],
+      "category": "Utility"
+    },
+    "files": [
+      "**/*",
+      "!dist",
+      "!scratch",
+      "!.agents",
+      "!.gemini",
+      "!.git"
+    ],
+    "publish": {
+      "provider": "github",
+      "owner": "ahmt26",
+      "repo": "RyzionMC-AFKClient"
+    }
+  }
+}
+
