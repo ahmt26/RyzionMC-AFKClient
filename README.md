@@ -15,6 +15,10 @@
   <img src="https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge" alt="License" />
 </p>
 
+<p align="center">
+  <img src="assets/dashboard.png" alt="RyzionMC AFK Client Dashboard" width="800" style="border-radius: 8px; border: 1px solid #30363d; box-shadow: 0 4px 20px rgba(0,0,0,0.5);"/>
+</p>
+
 ---
 
 ## 🌟 Overview
