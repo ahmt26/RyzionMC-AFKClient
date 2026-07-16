@@ -177,4 +177,4 @@ This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) f
 
 ## ⚠️ Disclaimer
 
-This tool is created for educational and utility purposes. Using automated clients (AFK Bots) may violate the Terms of Service of certain public Minecraft servers, leading to character bans. Use this software responsibly and at your own risk.
+This tool is created for educational and utility purposes. Using automated clients (AFK Bots) may violate the Terms of Service of certain public Minecraft servers, leading to character bans. Use this software responsibly and at your own risk. RyzionMC is not affiliated with Mojang AB and Microsoft Corporation.
