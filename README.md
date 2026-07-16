@@ -12,7 +12,7 @@
   <img src="https://img.shields.io/badge/Node.js-v18%2B-green.svg?style=for-the-badge&logo=node.js" alt="Node.js version" />
   <img src="https://img.shields.io/badge/Electron-v31.0.0-blue.svg?style=for-the-badge&logo=electron" alt="Electron version" />
   <img src="https://img.shields.io/badge/Mineflayer-v4.37.1-orange.svg?style=for-the-badge" alt="Mineflayer version" />
-  <img src="https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge" alt="License" />
+  <img src="https://img.shields.io/badge/License-GPLv3-blue.svg?style=for-the-badge" alt="License" />
 </p>
 
 <p align="center">
@@ -171,7 +171,7 @@ The output installers will be generated inside the `dist/` directory.
 
 ## 📜 License
 
-This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) file for more details.
+This project is licensed under the **GNU General Public License v3.0 (GPL-3.0)**. See the [LICENSE](LICENSE) file for more details.
 
 ---
 
