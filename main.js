@@ -3,6 +3,11 @@ const { autoUpdater } = require('electron-updater');
 const path = require('path');
 const fs = require('fs');
 
+// Handle uncaught exceptions gracefully to prevent dialog crashes
+process.on('uncaughtException', (err) => {
+  console.error('[Electron Main Process] Uncaught Exception:', err);
+});
+
 // Configure autoUpdater logging to console
 autoUpdater.logger = console;
 

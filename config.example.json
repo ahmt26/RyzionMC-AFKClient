@@ -1,0 +1,12 @@
+{
+  "webPort": 2855,
+  "geminiApiKey": "",
+  "accounts": [],
+  "language": "tr",
+  "openaiApiKey": "",
+  "claudeApiKey": "",
+  "deepseekApiKey": "",
+  "ollamaUrl": "http://localhost:11434",
+  "panelUsername": "admin",
+  "panelPassword": "admin"
+}

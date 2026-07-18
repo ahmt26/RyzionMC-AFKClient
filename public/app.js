@@ -740,10 +740,10 @@ btnAddAccount.addEventListener('click', () => {
   document.getElementById('acc-host').value = '';
   document.getElementById('acc-port').value = '25565';
   document.getElementById('acc-auto-commands').value = '';
-  document.getElementById('acc-auto-commands-delay').value = '2000';
+  document.getElementById('acc-auto-commands-delay').value = '5';
   document.getElementById('acc-enabled').checked = false;
   document.getElementById('acc-reconnect').checked = true;
-  document.getElementById('acc-reconnect-delay').value = '10000';
+  document.getElementById('acc-reconnect-delay').value = '30';
   document.getElementById('acc-respawn').checked = true;
   document.getElementById('acc-feed').checked = true;
   document.getElementById('acc-afk-enabled').checked = true;
@@ -780,10 +780,18 @@ btnEditBotEl.addEventListener('click', () => {
   document.getElementById('acc-host').value = account.host;
   document.getElementById('acc-port').value = account.port || 25565;
   document.getElementById('acc-auto-commands').value = account.autoCommands ? account.autoCommands.join('\n') : '';
-  document.getElementById('acc-auto-commands-delay').value = account.autoCommandsDelay || 2000;
+  let cmdDelay = account.autoCommandsDelay !== undefined ? account.autoCommandsDelay : 5;
+  if (cmdDelay > 500) {
+    cmdDelay = Math.round(cmdDelay / 1000);
+  }
+  document.getElementById('acc-auto-commands-delay').value = cmdDelay;
   document.getElementById('acc-enabled').checked = !!account.enabled;
   document.getElementById('acc-reconnect').checked = account.autoReconnect !== false;
-  document.getElementById('acc-reconnect-delay').value = account.reconnectDelay || 10000;
+  let recDelay = account.reconnectDelay !== undefined ? account.reconnectDelay : 30;
+  if (recDelay > 500) {
+    recDelay = Math.round(recDelay / 1000);
+  }
+  document.getElementById('acc-reconnect-delay').value = recDelay;
   document.getElementById('acc-respawn').checked = account.autoRespawn !== false;
   document.getElementById('acc-feed').checked = account.autoFeed !== false;
   
@@ -835,11 +843,11 @@ formAccount.addEventListener('submit', (e) => {
   
   const rawCommands = document.getElementById('acc-auto-commands').value;
   const autoCommands = rawCommands.split('\n').map(c => c.trim()).filter(Boolean);
-  const autoCommandsDelay = parseInt(document.getElementById('acc-auto-commands-delay').value) || 2000;
+  const autoCommandsDelay = parseInt(document.getElementById('acc-auto-commands-delay').value) || 5;
   
   const enabled = document.getElementById('acc-enabled').checked;
   const autoReconnect = document.getElementById('acc-reconnect').checked;
-  const reconnectDelay = parseInt(document.getElementById('acc-reconnect-delay').value) || 10000;
+  const reconnectDelay = parseInt(document.getElementById('acc-reconnect-delay').value) || 30;
   const autoRespawn = document.getElementById('acc-respawn').checked;
   const autoFeed = document.getElementById('acc-feed').checked;
 

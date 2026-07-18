@@ -1,6 +1,6 @@
 {
   "name": "ryzionmc-afk-client",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Minecraft AFK Client with Web GUI and Gemini Integration",
   "author": "ahmt26 <ahmt26@github.com>",
   "main": "main.js",

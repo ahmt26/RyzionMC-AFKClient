@@ -291,23 +291,25 @@ class BotManager {
         ? path.join(require('electron').app.getPath('userData'), 'auth_profiles')
         : path.join(__dirname, 'auth_profiles');
 
-      if (process.versions.electron && !fs.existsSync(profilesFolder)) {
+      if (!fs.existsSync(profilesFolder)) {
         try {
           fs.mkdirSync(profilesFolder, { recursive: true });
-          const localProfiles = path.join(__dirname, 'auth_profiles');
-          if (fs.existsSync(localProfiles)) {
-            const files = fs.readdirSync(localProfiles);
-            for (const file of files) {
-              const src = path.join(localProfiles, file);
-              const dest = path.join(profilesFolder, file);
-              if (fs.statSync(src).isFile()) {
-                fs.copyFileSync(src, dest);
+          if (process.versions.electron) {
+            const localProfiles = path.join(__dirname, 'auth_profiles');
+            if (fs.existsSync(localProfiles)) {
+              const files = fs.readdirSync(localProfiles);
+              for (const file of files) {
+                const src = path.join(localProfiles, file);
+                const dest = path.join(profilesFolder, file);
+                if (fs.statSync(src).isFile()) {
+                  fs.copyFileSync(src, dest);
+                }
               }
+              console.log('Copied auth profiles to userData folder');
             }
-            console.log('Copied auth profiles to userData folder');
           }
         } catch (err) {
-          console.error('Failed to copy auth profiles:', err);
+          console.error('Failed to setup auth profiles:', err);
         }
       }
 
@@ -378,6 +380,13 @@ class BotManager {
     const botData = this.bots[accountId];
     if (!botData) return;
 
+    // Safety patch: Prevent mineflayer crash on 1.20.5+ / 1.21 protocols when dimensionsArray is not yet initialized by registry packets
+    bot.once('inject_allowed', () => {
+      if (bot.registry && !bot.registry.dimensionsArray) {
+        bot.registry.dimensionsArray = [];
+      }
+    });
+
     // Intercept client writes to block play-state packets during configuration state
     const originalWrite = bot._client.write.bind(bot._client);
     bot._client.write = (name, params) => {
@@ -428,7 +437,9 @@ class BotManager {
         botData.hasRunAutoCommands = true;
         if (botData.config.autoCommands && botData.config.autoCommands.length > 0) {
           this.log(accountId, 'Executing auto-commands in 3 seconds...', 'info');
-          const delay = parseInt(botData.config.autoCommandsDelay) || 2000;
+          let configDelay = botData.config.autoCommandsDelay !== undefined ? parseInt(botData.config.autoCommandsDelay) : 5;
+          if (isNaN(configDelay)) configDelay = 5;
+          const delay = configDelay < 500 ? configDelay * 1000 : configDelay;
           botData.config.autoCommands.forEach((cmd, idx) => {
             setTimeout(() => {
               if (botData.status === 'online') {
@@ -455,7 +466,9 @@ class BotManager {
           botData.hasRunAutoCommands = true;
           if (botData.config.autoCommands && botData.config.autoCommands.length > 0) {
             this.log(accountId, 'Executing auto-commands in 3 seconds...', 'info');
-            const delay = parseInt(botData.config.autoCommandsDelay) || 2000;
+            let configDelay = botData.config.autoCommandsDelay !== undefined ? parseInt(botData.config.autoCommandsDelay) : 5;
+            if (isNaN(configDelay)) configDelay = 5;
+            const delay = configDelay < 500 ? configDelay * 1000 : configDelay;
             botData.config.autoCommands.forEach((cmd, idx) => {
               setTimeout(() => {
                 if (botData.status === 'online') {
@@ -581,7 +594,9 @@ class BotManager {
       return;
     }
 
-    const delay = parseInt(botData.config.reconnectDelay) || 10000;
+    let configDelay = botData.config.reconnectDelay !== undefined ? parseInt(botData.config.reconnectDelay) : 30;
+    if (isNaN(configDelay)) configDelay = 30;
+    const delay = configDelay < 500 ? configDelay * 1000 : configDelay;
     this.log(accountId, `Reconnecting in ${delay / 1000} seconds...`, 'warning');
 
     botData.status = 'reconnecting';
