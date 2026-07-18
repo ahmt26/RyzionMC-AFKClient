@@ -36,3 +36,6 @@ scratch/
 .agents/
 .gemini/
 .DS_Store
+
+# Local release script containing credentials
+publish.cmd

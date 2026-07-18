@@ -87,9 +87,13 @@ app.on('ready', () => {
   createWindow();
   
   // Check for updates and notify the user
-  autoUpdater.checkForUpdatesAndNotify().catch(err => {
-    console.error('Error checking for updates:', err);
-  });
+  if (app.isPackaged) {
+    autoUpdater.checkForUpdatesAndNotify().catch(err => {
+      console.error('Error checking for updates:', err);
+    });
+  } else {
+    console.log('[Updater] App is not packaged. Skipping update check.');
+  }
 });
 
 app.on('window-all-closed', () => {
@@ -127,7 +131,8 @@ autoUpdater.on('download-progress', (progressObj) => {
 
 autoUpdater.on('update-downloaded', (info) => {
   console.log('[Updater] Update downloaded:', info.version);
-  dialog.showMessageBox({
+  const parentWindow = mainWindow && !mainWindow.isDestroyed() ? mainWindow : null;
+  dialog.showMessageBox(parentWindow, {
     type: 'info',
     title: 'Yeni Güncelleme Hazır',
     message: `RyzionMC AFK Client v${info.version} indirildi. Şimdi yüklemek için uygulamayı yeniden başlatmak ister misiniz?`,

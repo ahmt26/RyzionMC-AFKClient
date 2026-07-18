@@ -1,9 +1,13 @@
 {
   "name": "ryzionmc-afk-client",
   "version": "1.0.1",
-  "description": "Minecraft AFK Client with Web GUI and Gemini Integration",
+  "description": "Minecraft AFK Client with Web GUI and AI Integration",
   "author": "ahmt26 <ahmt26@github.com>",
   "main": "main.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ahmt26/RyzionMC-AFKClient.git"
+  },
   "scripts": {
     "start": "electron .",
     "pack": "electron-builder --dir",
@@ -11,7 +15,8 @@
     "dist:win": "electron-builder --win",
     "dist:mac": "electron-builder --mac",
     "dist:linux": "electron-builder --linux",
-    "dist:all": "electron-builder --win --mac --linux"
+    "dist:all": "electron-builder --win --mac --linux",
+    "publish": "electron-builder --publish always"
   },
   "dependencies": {
     "@google/genai": "^2.10.0",
