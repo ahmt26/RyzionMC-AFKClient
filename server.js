@@ -44,6 +44,12 @@ function checkAuth(req, res, next) {
   if (isLocalRequest(req)) {
     return next();
   }
+
+  // If remote access is not allowed, reject non-local requests immediately!
+  if (!globalConfig.allowRemoteAccess) {
+    console.log(`[checkAuth] Blocked remote request from ${req.ip || req.connection?.remoteAddress} because allowRemoteAccess is false.`);
+    return res.status(403).send('Forbidden: Remote access is disabled.');
+  }
   // Allow unauthenticated requests to login-related routes
   const allowedPaths = [
     '/login',
@@ -184,6 +190,10 @@ function loadConfig() {
         parsed.panelPassword = 'admin';
         updated = true;
       }
+      if (parsed.allowRemoteAccess === undefined) {
+        parsed.allowRemoteAccess = false;
+        updated = true;
+      }
       if (updated) {
         fs.writeFileSync(CONFIG_PATH, JSON.stringify(parsed, null, 2), 'utf-8');
       }
@@ -192,7 +202,7 @@ function loadConfig() {
   } catch (err) {
     console.error('Failed to load config.json:', err);
   }
-  const defaultConfig = { webPort: 2855, geminiApiKey: '', accounts: [], panelUsername: 'admin', panelPassword: 'admin' };
+  const defaultConfig = { webPort: 2855, geminiApiKey: '', accounts: [], panelUsername: 'admin', panelPassword: 'admin', allowRemoteAccess: false };
   try {
     fs.writeFileSync(CONFIG_PATH, JSON.stringify(defaultConfig, null, 2), 'utf-8');
   } catch (err) {
@@ -224,6 +234,12 @@ io.use((socket, next) => {
   const isLocalIp = ip === '127.0.0.1' || ip === '::1' || ip === '::ffff:127.0.0.1' || ip === 'localhost';
   if (isLocalIp) {
     return next();
+  }
+
+  // If remote access is not allowed, reject non-local socket connections!
+  if (!globalConfig.allowRemoteAccess) {
+    console.log(`[Socket.io] Blocked remote connection from ${ip} because allowRemoteAccess is false.`);
+    return next(new Error('Remote access is disabled'));
   }
   
   const rc = socket.handshake.headers.cookie;
@@ -305,11 +321,12 @@ io.on('connection', (socket) => {
       currentSessionToken = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
     }
 
-    // Backend validation: Count registered accounts per host/IP
+    // Backend validation: Count registered accounts per host/IP (only validate if accounts array changed)
+    const accountsChanged = JSON.stringify(newConfig.accounts) !== JSON.stringify(globalConfig.accounts);
     const hostCounts = {};
     let isLimitExceeded = false;
     let exceededHost = '';
-    if (!isGodModeActive && newConfig.accounts && Array.isArray(newConfig.accounts)) {
+    if (accountsChanged && !isGodModeActive && newConfig.accounts && Array.isArray(newConfig.accounts)) {
       for (const acc of newConfig.accounts) {
         if (acc.host) {
           const host = acc.host.trim().toLowerCase();
@@ -479,5 +496,6 @@ server.listen(PORT, '0.0.0.0', () => {
   console.log(`-----------------------------------------------`);
   console.log(`Minecraft AFK Client running!`);
   console.log(`Open Web Dashboard at: http://localhost:${PORT}`);
+  console.log(`Allow Remote Access: ${globalConfig.allowRemoteAccess ? 'Yes' : 'No'} (Access Control handled by Middleware)`);
   console.log(`-----------------------------------------------`);
 });

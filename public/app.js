@@ -613,6 +613,7 @@ btnGlobalSettings.addEventListener('click', () => {
   document.getElementById('global-web-port').value = config.webPort || 2855;
   document.getElementById('global-panel-username').value = config.panelUsername || 'admin';
   document.getElementById('global-panel-password').value = config.panelPassword || 'admin';
+  document.getElementById('global-allow-remote-access').checked = !!config.allowRemoteAccess;
   modalSettings.classList.remove('hidden');
 });
 
@@ -637,6 +638,7 @@ formGlobalSettings.addEventListener('submit', (e) => {
   config.webPort = parseInt(document.getElementById('global-web-port').value) || 2855;
   config.panelUsername = document.getElementById('global-panel-username').value || 'admin';
   config.panelPassword = document.getElementById('global-panel-password').value || 'admin';
+  config.allowRemoteAccess = document.getElementById('global-allow-remote-access').checked;
 
   if (oldLang !== newLang) {
     socket.emit('save_config', config, (res) => {

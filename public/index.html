@@ -584,6 +584,10 @@
                 <label for="toggle-global-panel-password" data-i18n="show_password" style="font-size: 0.8rem; font-weight: normal; cursor: pointer; user-select: none; margin: 0; color: var(--text-muted);">Show Password</label>
               </div>
             </div>
+            <div class="form-group toggle-group" style="margin-top: 0.75rem; margin-bottom: 0.75rem;">
+              <label for="global-allow-remote-access" data-i18n="allow_remote_access_label">Allow Remote Access (Local/Public IP)</label>
+              <input type="checkbox" id="global-allow-remote-access" class="switch-checkbox">
+            </div>
             <div class="form-group" style="margin-top: 0.5rem;">
               <small id="remote-access-text" style="font-size: 0.8rem; font-weight: 300; color: var(--text-muted); line-height: 1.4; display: block;"></small>
             </div>
@@ -939,6 +943,6 @@ limitations under the License.</pre>
 
   <script src="/socket.io/socket.io.js"></script>
   <script src="translations.js"></script>
-  <script src="app.js?v=1.0.2"></script>
+  <script src="app.js?v=1.0.3"></script>
 </body>
 </html>

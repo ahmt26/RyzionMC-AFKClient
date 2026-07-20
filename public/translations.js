@@ -191,7 +191,9 @@ const translations = {
     "btn_msa_login": "Log in with Microsoft",
     "remote_access_help_local": "To control your client remotely, connect from your mobile device via {ip}:{port}.",
     "remote_access_help_public": "Your client is running on a VDS/VPS or public server. You can connect directly from your mobile device or externally via the address {ip}:{port}.",
-    "show_password": "Show Password"
+    "show_password": "Show Password",
+    "allow_remote_access_label": "Allow Remote Access (Local/Public IP)",
+    "allow_remote_access_help": "Enables connection to the web panel from local IP (like 192.168.x.x) or public IP. If disabled, remote connections are blocked immediately."
   },
   "tr": {
     "logo_afk_client": "AFK İstemcisi",
@@ -385,7 +387,9 @@ const translations = {
     "btn_msa_login": "Microsoft ile Giriş Yap",
     "remote_access_help_local": "İstemcinizi uzaktan kontrol etmek için mobil cihazınızdan {ip}:{port} adresini açın.",
     "remote_access_help_public": "İstemciniz bir VDS/VPS veya dışa açık sunucuda çalışıyor. Mobil cihazınızdan veya dışarıdan doğrudan {ip}:{port} adresi üzerinden bağlanabilirsiniz.",
-    "show_password": "Şifreyi Göster"
+    "show_password": "Şifreyi Göster",
+    "allow_remote_access_label": "Uzaktan Erişime İzin Ver (Yerel/Genel IP)",
+    "allow_remote_access_help": "Web paneline 192.168.x.x gibi yerel ağ IP'lerinden ve/veya sunucunun genel (public) IP'sinden bağlanılmasına izin verir. Kapatılırsa harici bağlantılar anında engellenir."
   },
   "az": {
     "logo_afk_client": "AFK Klienti",

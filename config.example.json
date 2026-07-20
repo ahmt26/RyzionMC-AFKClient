@@ -8,5 +8,6 @@
   "deepseekApiKey": "",
   "ollamaUrl": "http://localhost:11434",
   "panelUsername": "admin",
-  "panelPassword": "admin"
+  "panelPassword": "admin",
+  "allowRemoteAccess": false
 }
